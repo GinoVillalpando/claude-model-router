@@ -1,6 +1,6 @@
 // Runs the built hook (dist/hook.js; `npm test` builds first) as a subprocess, like Claude Code does.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -63,5 +63,43 @@ describe("hook", () => {
     const r = run("not json{{");
     expect(r.status).toBe(0);
     expect(r.stdout).toBe("");
+  });
+
+  it("null config file -> still routes with defaults (exit 0)", () => {
+    writeFileSync(join(dir, "cfg.json"), "null");
+    const r = run(agentCall({ prompt: "x" }), { ROUTER_HOOK_WATCHDOG_MS: "8000" });
+    expect(r.status).toBe(0);
+  });
+
+  describe("agent definition model", () => {
+    const defineAgent = (root: string, name: string, fm: string) => {
+      mkdirSync(join(root, ".claude", "agents"), { recursive: true });
+      writeFileSync(join(root, ".claude", "agents", `${name}.md`), `---\nname: ${name}\n${fm}\n---\nbody\n`);
+    };
+    const withCwd = (cwd: string, tool_input: Record<string, unknown>) =>
+      JSON.stringify({ hook_event_name: "PreToolUse", tool_name: "Agent", cwd, tool_input });
+
+    it("skips routing when project agent definition sets model", () => {
+      defineAgent(dir, "pinned", "model: opus");
+      const r = run(withCwd(dir, { prompt: "x", subagent_type: "pinned" }), { HOME: join(dir, "home") });
+      expect(r.status).toBe(0);
+      expect(r.stdout).toBe("");
+    });
+
+    it("skips routing when user-level agent definition sets model", () => {
+      const home = join(dir, "home");
+      defineAgent(home, "pinned", 'model: "haiku"');
+      const r = run(withCwd(dir, { prompt: "x", subagent_type: "pinned" }), { HOME: home });
+      expect(r.stdout).toBe("");
+    });
+
+    it("routes when definition has no model or model: inherit", () => {
+      defineAgent(dir, "nomodel", "tools: Read");
+      defineAgent(dir, "inh", "model: inherit");
+      for (const t of ["nomodel", "inh", "missing"]) {
+        const r = run(withCwd(dir, { prompt: "x", subagent_type: t }), { HOME: join(dir, "home") });
+        expect(JSON.parse(r.stdout).hookSpecificOutput.updatedInput.model).toBe("sonnet");
+      }
+    });
   });
 });

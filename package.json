@@ -1,6 +1,6 @@
 {
   "name": "claude-model-router",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Claude Code plugin: route delegated subagent tasks to the cheapest capable Claude model using a local Ollama decision model (tev1).",
   "scripts": {
     "build": "tsc -p tsconfig.json",

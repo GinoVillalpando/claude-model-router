@@ -80,11 +80,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): RouterConfig {
   const path = env.ROUTER_CONFIG || defaultConfigPath();
   let raw: Partial<RouterConfig> = {};
   try {
-    raw = JSON.parse(readFileSync(path, "utf8"));
+    const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) raw = parsed as Partial<RouterConfig>;
   } catch {
     // Missing/invalid config: fall back to built-in defaults.
   }
-  return { ...DEFAULTS, ...raw, ollama: { ...DEFAULTS.ollama, ...(raw.ollama ?? {}) } };
+  return { ...DEFAULTS, ...raw, ollama: { ...DEFAULTS.ollama, ...(raw.ollama && typeof raw.ollama === "object" ? raw.ollama : {}) } };
 }
 
 export function dataDir(env: NodeJS.ProcessEnv = process.env): string {

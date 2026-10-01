@@ -1,6 +1,6 @@
 {
   "name": "claude-model-router",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Routes delegated subagent tasks to the cheapest capable Claude model (haiku < sonnet < opus < fable) using a local Ollama decision model (tev1).",
   "author": { "name": "Gino", "email": "gino@rs21.io" },
   "license": "MIT",

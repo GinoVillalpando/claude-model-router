@@ -30,12 +30,14 @@ export function loadConfig(env = process.env) {
     const path = env.ROUTER_CONFIG || defaultConfigPath();
     let raw = {};
     try {
-        raw = JSON.parse(readFileSync(path, "utf8"));
+        const parsed = JSON.parse(readFileSync(path, "utf8"));
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed))
+            raw = parsed;
     }
     catch {
         // Missing/invalid config: fall back to built-in defaults.
     }
-    return { ...DEFAULTS, ...raw, ollama: { ...DEFAULTS.ollama, ...(raw.ollama ?? {}) } };
+    return { ...DEFAULTS, ...raw, ollama: { ...DEFAULTS.ollama, ...(raw.ollama && typeof raw.ollama === "object" ? raw.ollama : {}) } };
 }
 export function dataDir(env = process.env) {
     return env.ROUTER_DATA_DIR || join(homedir(), ".claude-model-router");

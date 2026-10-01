@@ -1,10 +1,63 @@
 // PreToolUse hook for the Agent tool: fill in `model` via updatedInput when the
 // caller did not set one. Must never block the Agent call: on any failure it
 // exits 0 with no output.
+import { readdirSync, readFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { basename, join } from "node:path";
 import { loadConfig, route } from "./router.js";
 const config = loadConfig();
 // Up to two tev1 attempts (context-overflow retry) plus startup slack.
 const WATCHDOG_MS = Number(process.env.ROUTER_HOOK_WATCHDOG_MS) || config.ollama.timeoutMs * 2 + 1500;
+/** Best-effort: does the subagent's definition (.md frontmatter) set a concrete `model:`? */
+function agentDefinitionSetsModel(subagentType, cwd) {
+    try {
+        if (typeof subagentType !== "string" || !subagentType)
+            return false;
+        const [plugin, nameOnly] = subagentType.includes(":") ? subagentType.split(":", 2) : [undefined, subagentType];
+        const dirs = [];
+        if (!plugin) {
+            if (typeof cwd === "string" && cwd)
+                dirs.push(join(cwd, ".claude", "agents"));
+            dirs.push(join(homedir(), ".claude", "agents"));
+        }
+        else {
+            const cache = join(homedir(), ".claude", "plugins", "cache");
+            for (const mkt of readdirSync(cache)) {
+                const pdir = join(cache, mkt, plugin);
+                try {
+                    for (const ver of readdirSync(pdir))
+                        dirs.push(join(pdir, ver, "agents"));
+                }
+                catch { }
+            }
+        }
+        for (const dir of dirs) {
+            let files;
+            try {
+                files = readdirSync(dir).filter((f) => f.endsWith(".md"));
+            }
+            catch {
+                continue;
+            }
+            for (const f of files) {
+                let fm;
+                try {
+                    fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(readFileSync(join(dir, f), "utf8"))?.[1] ?? "";
+                }
+                catch {
+                    continue;
+                }
+                const get = (k) => new RegExp(`^${k}:[ \\t]*(.*?)[ \\t]*\\r?$`, "m").exec(fm)?.[1]?.replace(/^["']|["']$/g, "") ?? "";
+                if ((get("name") || basename(f, ".md")) !== nameOnly)
+                    continue;
+                const model = get("model");
+                return model !== "" && model !== "inherit";
+            }
+        }
+    }
+    catch { }
+    return false;
+}
 async function main() {
     const chunks = [];
     for await (const c of process.stdin)
@@ -16,6 +69,8 @@ async function main() {
         return;
     const toolInput = input.tool_input ?? {};
     if (typeof toolInput.prompt !== "string")
+        return;
+    if (!toolInput.model && agentDefinitionSetsModel(toolInput.subagent_type, input.cwd))
         return;
     const r = await route({
         prompt: toolInput.prompt,

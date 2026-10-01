@@ -4,7 +4,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { route } from "./router.js";
 
-const server = new McpServer({ name: "claude-model-router", version: "0.1.1" });
+const server = new McpServer({ name: "claude-model-router", version: "0.1.2" });
 
 server.registerTool(
   "route_task",
