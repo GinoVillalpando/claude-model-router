@@ -56,13 +56,8 @@ Install it persistently from the local directory. `claude plugin install` needs 
 so create a one-plugin local marketplace next to the repo (the plugin loads in place):
 
 ```bash
-mkdir -p ~/local-plugins/.claude-plugin
-cat > ~/local-plugins/.claude-plugin/marketplace.json <<'EOF'
-{ "name": "local-plugins", "owner": { "name": "me" },
-  "plugins": [ { "name": "claude-model-router", "source": "/home/gino/git-projects/claude-model-router" } ] }
-EOF
-claude plugin marketplace add ~/local-plugins
-claude plugin install claude-model-router@local-plugins
+claude plugin marketplace add GinoVillalpando/tev1-decision-plugins
+claude plugin install claude-model-router@tev1-decision-plugins
 ```
 
 The `route_task` MCP tool needs permission like any other MCP tool. Interactive sessions ask
