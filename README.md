@@ -39,7 +39,7 @@ Decision rules:
 ## Install / try
 
 ```bash
-cd /home/gino/git-projects/claude-model-router
+cd /claude-model-router
 npm install
 npm run build        # creates dist/ (the plugin runs from dist/)
 npm test             # builds, then runs vitest with tev1 mocked
@@ -49,11 +49,10 @@ claude plugin validate .
 Try it for one session without installing:
 
 ```bash
-claude --plugin-dir /home/gino/git-projects/claude-model-router
+claude --plugin-dir /claude-model-router
 ```
 
-Install it persistently from the local directory. `claude plugin install` needs a marketplace,
-so create a one-plugin local marketplace next to the repo (the plugin loads in place):
+Install permanently from the GitHub repository. Claude Code needs the marketplace.
 
 ```bash
 claude plugin marketplace add GinoVillalpando/tev1-decision-plugins
