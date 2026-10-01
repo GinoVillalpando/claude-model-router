@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { route } from "./router.js";
-const server = new McpServer({ name: "claude-model-router", version: "0.1.0" });
+const server = new McpServer({ name: "claude-model-router", version: "0.1.1" });
 server.registerTool("route_task", {
     title: "Route task to cheapest capable model",
     description: "Given the full prompt you are about to delegate to a subagent, returns the cheapest capable Claude model alias " +
