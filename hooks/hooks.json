@@ -1,0 +1,18 @@
+{
+  "description": "Fill in the Agent tool's model (only when unset) with the cheapest capable model chosen by tev1.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/dist/hook.js"],
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

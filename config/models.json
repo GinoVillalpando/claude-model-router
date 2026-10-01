@@ -1,0 +1,41 @@
+{
+  "ollama": {
+    "url": "http://localhost:11434/v1/systemone",
+    "model": "tev1",
+    "timeoutMs": 3000
+  },
+  "instructions": "Pick the cheapest Claude model that can reliably complete this delegated task. Prefer cheaper models unless the task clearly needs more capability.",
+  "candidates": [
+    {
+      "alias": "haiku",
+      "id": "claude-haiku-4-5-20251001",
+      "tier": 1,
+      "criteria": "Lookups, file/code search, listing or summarizing, trivial single-line edits, simple questions."
+    },
+    {
+      "alias": "sonnet",
+      "id": "claude-sonnet-5-5",
+      "tier": 2,
+      "criteria": "Typical coding: implement a function or small feature, write tests, fix an ordinary bug, routine refactor."
+    },
+    {
+      "alias": "opus",
+      "id": "claude-opus-5-5",
+      "tier": 3,
+      "criteria": "Complex multi-file changes, tricky debugging, subtle concurrency or performance issues, careful code review."
+    },
+    {
+      "alias": "fable",
+      "id": "claude-fable-5-1",
+      "tier": 4,
+      "criteria": "Hardest problems only: deep reasoning, large system or architecture design, novel algorithms, high-stakes plans."
+    }
+  ],
+  "defaultModel": "sonnet",
+  "minGap": 0.15,
+  "cacheTtlMs": 600000,
+  "numCtx": 2050,
+  "promptExcerptTokens": 1200,
+  "stateMaxTokens": 1400,
+  "skipSubagentTypes": ["model-router", "claude-model-router:model-router"]
+}
