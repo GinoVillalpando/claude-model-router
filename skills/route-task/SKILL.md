@@ -2,21 +2,18 @@
 name: route-task
 description: Before delegating any task to a subagent with the Agent tool, call route_task to pick the cheapest capable model (haiku, sonnet, opus, fable) and pass it as the Agent tool's model parameter.
 ---
-
 # Route delegated tasks to the cheapest capable model
 
-Whenever you are about to call the Agent tool and you have not been told which model to use:
+Before calling Agent tool without told model:
 
-1. Write the full subagent prompt first.
-2. Call the `route_task` tool (from the `model-router` MCP server) with:
-   - `task`: the exact prompt you will send to the subagent
-   - `subagent_type`: the subagent type you plan to use (optional)
-3. Call the Agent tool with `model` set to the returned `model`. If `model` is `null`, omit `model`.
+1. Write full subagent prompt first.
+2. Call `route_task` tool (from `model-router` MCP server) with:
+   - `task`: exact prompt sent to subagent
+   - `subagent_type`: planned subagent type (optional)
+3. Call Agent tool with `model` set to returned `model`. If `model` is `null`, omit `model`.
 
 Rules:
-- If the user or an agent definition explicitly chose a model, use that and skip routing.
-- Do not rewrite or shorten the prompt after routing; the decision is for that prompt.
-- `source` in the result is informational: `tev1` (router chose), `fallback` (router unsure or
-  unavailable; a safe default was used), `cache` (recent identical prompt).
-- The plugin's PreToolUse hook also fills in `model` automatically when you omit it, so calling
-  `route_task` is mainly useful when you want to see the decision before delegating.
+- If user or agent definition explicitly chose model, use it, skip routing.
+- Do not rewrite or shorten prompt after routing; decision is for that prompt.
+- `source` in result informational: `tev1` (router chose), `fallback` (router unsure or unavailable; safe default used), `cache` (recent identical prompt).
+- Plugin's PreToolUse hook also fills `model` automatically when omitted, so `route_task` mainly useful to see decision before delegating.
