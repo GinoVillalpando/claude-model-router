@@ -3,7 +3,8 @@
   "version": "0.1.2",
   "description": "Claude Code plugin: route delegated subagent tasks to the cheapest capable Claude model using a local Ollama decision model (tev1).",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node scripts/sync-version.js && tsc -p tsconfig.json",
+    "version": "node scripts/sync-version.js && git add .claude-plugin/plugin.json",
     "test": "vitest run",
     "route": "node dist/cli.js",
     "pretest": "npm run build"

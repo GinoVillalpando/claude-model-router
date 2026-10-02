@@ -1,9 +1,12 @@
 // MCP server exposing route_task(task, subagent_type?) backed by the local tev1 model.
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { route } from "./router.js";
-const server = new McpServer({ name: "claude-model-router", version: "0.1.2" });
+// package.json sits one level above both src/ and dist/, so this resolves from either.
+const { version } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+const server = new McpServer({ name: "claude-model-router", version });
 server.registerTool("route_task", {
     title: "Route task to cheapest capable model",
     description: "Given the full prompt you are about to delegate to a subagent, returns the cheapest capable Claude model alias " +

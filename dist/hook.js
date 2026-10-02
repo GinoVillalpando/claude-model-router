@@ -11,13 +11,15 @@ const WATCHDOG_MS = Number(process.env.ROUTER_HOOK_WATCHDOG_MS) || config.ollama
 /** Best-effort: does the subagent's definition (.md frontmatter) set a concrete `model:`? */
 function agentDefinitionSetsModel(subagentType, cwd) {
     try {
-        if (typeof subagentType !== "string" || !subagentType)
+        if (typeof subagentType !== "string" || !subagentType) {
             return false;
+        }
         const [plugin, nameOnly] = subagentType.includes(":") ? subagentType.split(":", 2) : [undefined, subagentType];
         const dirs = [];
         if (!plugin) {
-            if (typeof cwd === "string" && cwd)
+            if (typeof cwd === "string" && cwd) {
                 dirs.push(join(cwd, ".claude", "agents"));
+            }
             dirs.push(join(homedir(), ".claude", "agents"));
         }
         else {
@@ -25,8 +27,9 @@ function agentDefinitionSetsModel(subagentType, cwd) {
             for (const mkt of readdirSync(cache)) {
                 const pdir = join(cache, mkt, plugin);
                 try {
-                    for (const ver of readdirSync(pdir))
+                    for (const ver of readdirSync(pdir)) {
                         dirs.push(join(pdir, ver, "agents"));
+                    }
                 }
                 catch { }
             }
@@ -60,8 +63,9 @@ function agentDefinitionSetsModel(subagentType, cwd) {
 }
 async function main() {
     const chunks = [];
-    for await (const c of process.stdin)
+    for await (const c of process.stdin) {
         chunks.push(c);
+    }
     const input = JSON.parse(Buffer.concat(chunks).toString("utf8"));
     if (input?.hook_event_name && input.hook_event_name !== "PreToolUse")
         return;
